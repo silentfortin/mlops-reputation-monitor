@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install
+        run: pip install -r requirements.txt
+      - name: Run tests
+        run: pytest -q
+      - name: Build Docker image
+        run: docker build -t mlops-reputation-monitor:latest .
+      - name: (Optional) Push Docker image to registry
+        if: env.DOCKER_USERNAME != ''
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+          docker tag mlops-reputation-monitor:latest $DOCKER_USERNAME/mlops-reputation-monitor:latest
+          docker push $DOCKER_USERNAME/mlops-reputation-monitor:latest
+      - name: Upload model to HuggingFace (optional)
+        if: ${{ secrets.HF_TOKEN }}
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          pip install huggingface_hub
+          python - <<'PY'
+          import os
+          from huggingface_hub import HfApi, Repository
+          api = HfApi()
+          print("HF token present, you may push models via huggingface_hub in separate step")
+          PY
