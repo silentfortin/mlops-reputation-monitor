@@ -4,28 +4,6 @@ import pandas as pd
 import string
 from kagglehub import KaggleDatasetAdapter
 
-file_path = "test_data.csv"
-# column_names = ["sentiment", "id", "date", "query", "user", "text"]
-
-try:
-    df = kagglehub.load_dataset(
-        KaggleDatasetAdapter.PANDAS,
-        "krishbaisoya/tweets-sentiment-analysis",
-        file_path,
-        pandas_kwargs={"encoding": "latin1"},
-    )
-    if df.empty:
-        print("Dataset [translate:empty], proceeding to download or handle it\n")
-        # code to download or reload goes here
-    else:
-        print("Dataset loaded successfully\n")
-except Exception as e:
-    print(f"Dataset loading error: {e}")
-    # code to download or handle the problem goes here
-
-# print the first 5 records
-# print("First 5 records:", df.head())
-
 # Pre-compile regexes
 emoji_pattern = re.compile("["
     u"\U0001F600-\U0001F64F"  # emoticons
@@ -64,5 +42,24 @@ def preprocess_text_series(text_series: pd.Series) -> pd.Series:
     
     return text_series
 
-df['processed_text'] = preprocess_text_series(df['sentence'])
-print(df['processed_text'])
+def get_preprocessed_df():
+    file_path = "test_data.csv"
+
+    try:
+        df = kagglehub.load_dataset(
+            KaggleDatasetAdapter.PANDAS,
+            "krishbaisoya/tweets-sentiment-analysis",
+            file_path,
+            pandas_kwargs={"encoding": "latin1"},
+        )
+        if df.empty:
+            print("Dataset [translate:empty], proceeding to download or handle it\n")
+            # code to download or reload goes here
+        else:
+            print("Dataset loaded successfully\n")
+    except Exception as e:
+        print(f"Dataset loading error: {e}")
+
+    if not df.empty:
+        df['processed_text'] = preprocess_text_series(df['sentence'])
+    return df
