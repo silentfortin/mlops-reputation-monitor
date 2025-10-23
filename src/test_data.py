@@ -44,7 +44,8 @@ def preprocess_text_series(text_series: pd.Series) -> pd.Series:
 
 def get_preprocessed_df():
     file_path = "test_data.csv"
-
+    df = pd.DataFrame()
+    
     try:
         df = kagglehub.load_dataset(
             KaggleDatasetAdapter.PANDAS,
