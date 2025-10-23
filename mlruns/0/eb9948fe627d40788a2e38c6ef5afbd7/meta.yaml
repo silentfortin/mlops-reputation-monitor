@@ -1,0 +1,14 @@
+artifact_uri: file:///workspaces/mlops-reputation-monitor/mlruns/0/eb9948fe627d40788a2e38c6ef5afbd7/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: eb9948fe627d40788a2e38c6ef5afbd7
+run_name: bouncy-goat-88
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1761213046665
+status: 1
+tags: []
+user_id: codespace

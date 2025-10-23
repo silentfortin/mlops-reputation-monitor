@@ -1,16 +1,15 @@
 from fastapi import FastAPI
+import pandas as pd
 from pydantic import BaseModel
 from transformers import pipeline
 import mlflow
 from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 from fastapi.responses import PlainTextResponse
 
-# Importa qui la funzione di preprocessing da test_data.py
 from src.test_data import preprocess_text_series
+from src.inference_data import classifier
 
 app = FastAPI()
-
-classifier = pipeline("sentiment-analysis", model="cardiffnlp/twitter-roberta-base-sentiment-latest")
 
 # Prometheus counters
 REQUEST_COUNT = Counter("app_requests_total", "Total requests")
@@ -25,8 +24,6 @@ class TextIn(BaseModel):
 async def predict(payload: TextIn):
     REQUEST_COUNT.inc()
     
-    # Preprocess: la funzione preprocess_text_series lavora su pd.Series, qui fai un cast a serie Pandas
-    import pandas as pd
     processed_text = preprocess_text_series(pd.Series([payload.text]))[0]
 
     results = classifier(processed_text)
