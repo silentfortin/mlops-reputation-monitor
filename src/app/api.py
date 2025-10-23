@@ -5,6 +5,7 @@ from transformers import pipeline
 import mlflow
 from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 from fastapi.responses import PlainTextResponse
+from fastapi import UploadFile, File
 
 from src.test_data import preprocess_text_series
 from src.inference_data import classifier
@@ -42,6 +43,14 @@ async def predict(payload: TextIn):
     mlflow.log_metric("pred_score", score)
 
     return {"label": label, "score": score}
+
+@app.post("/predict_csv")
+async def predict_batch(col_name, file: UploadFile = File(...)):
+    REQUEST_COUNT.inc()
+
+    df = pd.read_csv(file.file)
+
+
 
 @app.get("/metrics")
 def metrics():
