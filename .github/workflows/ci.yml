@@ -9,36 +9,46 @@ on:
 jobs:
   test-build:
     runs-on: ubuntu-latest
+    env:
+      HAS_DOCKER_CREDS: ${{ secrets.DOCKER_USERNAME != '' && secrets.DOCKER_PASSWORD != '' }}
+      HAS_HF_TOKEN: ${{ secrets.HF_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - name: Install
+
+      - name: Install dependencies
         run: pip install -r requirements.txt
+
       - name: Run tests
         run: pytest -q
+
       - name: Build Docker image
         run: docker build -t mlops-reputation-monitor:latest .
-      - name: (Optional) Push Docker image to registry
-        if: env.DOCKER_USERNAME != ''
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Log in to Docker Hub
+        if: env.HAS_DOCKER_CREDS == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Docker image
+        if: env.HAS_DOCKER_CREDS == 'true'
         run: |
-          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-          docker tag mlops-reputation-monitor:latest $DOCKER_USERNAME/mlops-reputation-monitor:latest
-          docker push $DOCKER_USERNAME/mlops-reputation-monitor:latest
+          docker tag mlops-reputation-monitor:latest ${{ secrets.DOCKER_USERNAME }}/mlops-reputation-monitor:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/mlops-reputation-monitor:latest
+
       - name: Upload model to HuggingFace (optional)
-        if: ${{ secrets.HF_TOKEN }}
+        if: env.HAS_HF_TOKEN == 'true'
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           pip install huggingface_hub
           python - <<'PY'
-          import os
-          from huggingface_hub import HfApi, Repository
-          api = HfApi()
-          print("HF token present, you may push models via huggingface_hub in separate step")
+          from huggingface_hub import HfApi
+          print("HF token presente, puoi caricare il modello in uno step separato")
           PY
