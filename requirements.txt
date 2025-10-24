@@ -20,3 +20,4 @@ kaggle
 kagglehub
 regex
 streamlit
+python-multipart

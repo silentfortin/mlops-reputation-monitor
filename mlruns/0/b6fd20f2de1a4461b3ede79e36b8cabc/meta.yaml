@@ -1,0 +1,14 @@
+artifact_uri: file:///workspaces/mlops-reputation-monitor/mlruns/0/b6fd20f2de1a4461b3ede79e36b8cabc/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: b6fd20f2de1a4461b3ede79e36b8cabc
+run_name: able-snail-906
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1761290597589
+status: 1
+tags: []
+user_id: codespace
